@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.1
 
 .GUID 1d93c562-6713-4503-91a4-3fce3e7a1ca8
 
@@ -85,5 +85,31 @@ function HaveContentThatMatches {
     "GET $($r.ResponseUri) returned content that did not match $pattern"
   } else {
     $true
+  }
+}
+
+function Invoke-Endpoint{
+  [cmdletbinding()]
+  param(
+    [Parameter(ValueFromPipeline)]
+    $uri,
+    [Parameter(Mandatory=$false)]
+    $method = 'GET',
+    [Parameter(Mandatory=$false)]
+    $baseuri = ''
+  )
+  begin {
+    $auldProgressPreference = $ProgressPreference
+    $ProgressPreference = 'silentlycontinue'      
+  }
+  process{
+    try {
+      Invoke-WebRequest "$baseuri$uri" -Method $method -UseBasicParsing
+    } catch {
+      $_.Exception.Response
+    }
+  }
+  end {
+    $ProgressPreference = $auldProgressPreference
   }
 }
