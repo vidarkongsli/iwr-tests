@@ -1,5 +1,6 @@
 # Iwr-tests (Invoke-WebRequest - tests)
 PowerShell script to make assertions on Invoke-WebRequest results.
+![Appveyor build status](https://ci.appveyor.com/api/projects/status/github/vidarkongsli/iwr-tests)
 
 # Installation
 ```posh
