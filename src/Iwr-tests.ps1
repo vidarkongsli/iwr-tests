@@ -1,7 +1,7 @@
 
 <#PSScriptInfo
 
-.VERSION 1.1
+.VERSION 1.2
 
 .GUID 1d93c562-6713-4503-91a4-3fce3e7a1ca8
 
@@ -9,7 +9,7 @@
 
 .COMPANYNAME Bredvid AS
 
-.COPYRIGHT 2017
+.COPYRIGHT 2017-2018
 
 .TAGS
 
@@ -124,20 +124,26 @@ function Invoke-Endpoint {
               $done = $true
             }
             catch [System.Net.WebException] {
+                if ($_.Exception.Response -eq $null) {
+                    Write-debug "No response object found"
+                    return $_.Exception
+                }
                 $resp = $_.Exception.Response
+                Write-debug "Response code: $($resp.StatusCode)"
                 $currentRetry += 1
                 $isARetryCode = $retryStatusCodes -contains $resp.StatusCode
                 Write-debug "Is retry code: $isARetryCode"
                 $hasRetriedEnough = $currentRetry -gt ($retryCount + 1)
                 Write-debug "Has retried enough: $hasRetriedEnough"
                 if ($hasRetriedEnough -or(-not($isARetryCode))) {
-                    Write-debug "Returing response object"
-                    $resp
+                    Write-debug "Returning response object"
+                    return $resp
                     $done = $true
                 } else {
                     $sleepTime = $retryDelay*$currentRetry
                     Write-debug "Sleeping for $sleepTime seconds"
-                    Start-Sleep -Seconds $sleepTime 
+                    Start-Sleep -Seconds $sleepTime
+                    $resp = $null
                 }
             }
             catch {
